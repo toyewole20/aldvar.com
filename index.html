@@ -1,47 +1,697 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Aldvar</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #0f172a; /* dark navy */
-            color: white;
-        }
+  <meta charset="utf-8" />
+  <title>Aldvar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#0f172a;
+      --card:#111c33;
+      --muted:#94a3b8;
+      --text:#e6edf7;
+      --line:rgba(148,163,184,.22);
+      --accent:#22c55e;      /* modern analytics green */
+      --accent2:#38bdf8;     /* cool blue */
+      --shadow: 0 14px 30px rgba(0,0,0,.45);
+      --shadow2: 0 22px 50px rgba(0,0,0,.6);
+      --radius: 16px;
+      --max: 1100px;
+    }
 
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            height: 100vh;
-        }
+    *{ box-sizing:border-box; }
+    html{ scroll-behavior:smooth; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1100px 500px at 20% -10%, rgba(56,189,248,.18), transparent 60%),
+                  radial-gradient(900px 500px at 80% 0%, rgba(34,197,94,.14), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      line-height:1.5;
+    }
+    a{ color:inherit; text-decoration:none; }
+    .container{ max-width:var(--max); margin:0 auto; padding:0 20px; }
 
-        .box {
-            border: 1px solid #334155; /* subtle grid lines */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
+    /* NAV */
+    .nav{
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(10px);
+      background: rgba(11,18,32,.65);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-inner{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: 14px 0;
+      gap: 16px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      min-width: 220px;
+    }
+    .logo{
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      border: 1px solid rgba(56,189,248,.35);
+      background: linear-gradient(135deg, rgba(56,189,248,.2), rgba(34,197,94,.18));
+      box-shadow: 0 10px 20px rgba(0,0,0,.35);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:700;
+      letter-spacing:.5px;
+      color: rgba(230,237,247,.95);
+      user-select:none;
+    }
+    .brand .name{
+      display:flex;
+      flex-direction:column;
+      line-height:1.1;
+    }
+    .brand .name strong{ font-size: 14px; letter-spacing:.6px; }
+    .brand .name span{ font-size: 12px; color: var(--muted); }
 
-        .box:nth-child(1) { background-color: #1e293b; }
-        .box:nth-child(2) { background-color: #0ea5e9; }
-        .box:nth-child(3) { background-color: #1e40af; }
-        .box:nth-child(4) { background-color: #334155; }
-        .box:nth-child(5) { background-color: #0369a1; }
-        .box:nth-child(6) { background-color: #1d4ed8; }
-    </style>
+    .nav-links{
+      display:flex;
+      align-items:center;
+      gap: 18px;
+    }
+    .nav-links a{
+      font-size: 13px;
+      color: rgba(230,237,247,.9);
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      transition: .2s ease;
+      white-space: nowrap;
+    }
+    .nav-links a:hover{
+      background: rgba(255,255,255,.04);
+      border-color: rgba(148,163,184,.18);
+      transform: translateY(-1px);
+    }
+    .nav-cta{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid rgba(148,163,184,.22);
+      background: rgba(17,28,51,.55);
+      color: var(--text);
+      cursor:pointer;
+      transition: .2s ease;
+    }
+    .btn:hover{ transform: translateY(-2px); box-shadow: var(--shadow); }
+    .btn.primary{
+      border-color: rgba(34,197,94,.35);
+      background: linear-gradient(135deg, rgba(34,197,94,.22), rgba(56,189,248,.14));
+    }
+    .menu-btn{ display:none; }
+
+    /* HERO */
+    .hero{
+      padding: 84px 0 36px;
+    }
+    .hero-grid{
+      display:grid;
+      grid-template-columns: 1.3fr .7fr;
+      gap: 26px;
+      align-items:stretch;
+    }
+    .hero-card{
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(15,23,42,.75), rgba(17,28,51,.45));
+      border-radius: calc(var(--radius) + 4px);
+      box-shadow: var(--shadow);
+      padding: 34px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-card:before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background: radial-gradient(800px 260px at 30% 0%, rgba(56,189,248,.18), transparent 65%),
+                  radial-gradient(700px 240px at 70% 10%, rgba(34,197,94,.16), transparent 65%);
+      pointer-events:none;
+      opacity:.9;
+    }
+    .hero-card > *{ position: relative; }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(56,189,248,.25);
+      background: rgba(17,28,51,.55);
+      color: rgba(230,237,247,.92);
+      font-size: 12px;
+      letter-spacing: .4px;
+      margin-bottom: 14px;
+    }
+    .dot{
+      width: 8px; height: 8px; border-radius: 999px;
+      background: var(--accent2);
+      box-shadow: 0 0 0 4px rgba(56,189,248,.18);
+    }
+    h1{
+      margin: 0 0 12px 0;
+      font-size: 46px;
+      line-height: 1.08;
+      letter-spacing: .2px;
+    }
+    .sub{
+      margin: 0 0 22px 0;
+      color: rgba(148,163,184,.95);
+      font-size: 16px;
+      max-width: 62ch;
+    }
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .hero-actions .btn{ padding: 12px 16px; }
+
+    .trust{
+      margin-top: 20px;
+      display:flex;
+      flex-wrap:wrap;
+      gap: 10px;
+      color: rgba(148,163,184,.95);
+      font-size: 12px;
+    }
+    .pill{
+      border: 1px solid rgba(148,163,184,.2);
+      background: rgba(17,28,51,.35);
+      padding: 8px 10px;
+      border-radius: 999px;
+    }
+
+    /* HERO SIDEBAR */
+    .hero-side{
+      border: 1px solid var(--line);
+      background: rgba(17,28,51,.35);
+      border-radius: calc(var(--radius) + 4px);
+      box-shadow: var(--shadow);
+      padding: 22px;
+      display:flex;
+      flex-direction:column;
+      gap: 14px;
+    }
+    .kpi{
+      border: 1px solid rgba(148,163,184,.18);
+      border-radius: var(--radius);
+      padding: 14px;
+      background: rgba(15,23,42,.55);
+    }
+    .kpi strong{ display:block; font-size: 18px; }
+    .kpi span{ display:block; font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    /* SECTION */
+    section{ scroll-margin-top: 84px; }
+    .section{
+      padding: 36px 0 30px;
+    }
+    .section h2{
+      margin: 0 0 10px;
+      font-size: 26px;
+      letter-spacing:.2px;
+    }
+    .section p.lead{
+      margin: 0 0 18px;
+      color: rgba(148,163,184,.95);
+      max-width: 80ch;
+    }
+
+    /* SERVICES GRID */
+    .grid-container{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 18px;
+      margin-top: 18px;
+    }
+    .box{
+      grid-column: span 4;
+      border-radius: var(--radius);
+      border: 1px solid rgba(148,163,184,.18);
+      background: linear-gradient(180deg, rgba(17,28,51,.55), rgba(15,23,42,.55));
+      box-shadow: 0 10px 22px rgba(0,0,0,.45);
+      padding: 20px;
+      transition: .25s ease;
+      position:relative;
+      overflow:hidden;
+      min-height: 148px;
+    }
+    .box:before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background: radial-gradient(500px 220px at 20% 0%, rgba(56,189,248,.14), transparent 60%),
+                  radial-gradient(520px 220px at 80% 10%, rgba(34,197,94,.12), transparent 62%);
+      opacity:.65;
+      pointer-events:none;
+    }
+    .box > *{ position:relative; }
+    .box:hover{
+      transform: translateY(-8px);
+      box-shadow: var(--shadow2);
+      border-color: rgba(56,189,248,.25);
+    }
+    .box h3{ margin: 0 0 8px; font-size: 16px; letter-spacing:.2px; }
+    .box p{ margin: 0; color: rgba(148,163,184,.95); font-size: 13px; }
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      font-size: 12px;
+      color: rgba(230,237,247,.9);
+      margin-top: 14px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,.2);
+      background: rgba(11,18,32,.35);
+    }
+    .tag b{
+      display:inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(34,197,94,.14);
+    }
+
+    /* CONTACT */
+    .contact-wrap{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+    .panel{
+      border-radius: calc(var(--radius) + 4px);
+      border: 1px solid rgba(148,163,184,.18);
+      background: rgba(17,28,51,.35);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+    form{
+      display:grid;
+      gap: 12px;
+      margin-top: 6px;
+    }
+    label{
+      font-size: 12px;
+      color: rgba(148,163,184,.95);
+    }
+    input, textarea, select{
+      width: 100%;
+      padding: 12px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(148,163,184,.22);
+      background: rgba(15,23,42,.55);
+      color: var(--text);
+      outline: none;
+      transition: .2s ease;
+      font-size: 14px;
+    }
+    input:focus, textarea:focus, select:focus{
+      border-color: rgba(56,189,248,.45);
+      box-shadow: 0 0 0 4px rgba(56,189,248,.12);
+    }
+    textarea{ min-height: 120px; resize: vertical; }
+    .form-row{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .note{
+      font-size: 12px;
+      color: rgba(148,163,184,.95);
+      margin-top: 10px;
+    }
+    .mini{
+      display:grid;
+      gap: 10px;
+      margin-top: 10px;
+      font-size: 13px;
+      color: rgba(148,163,184,.95);
+    }
+    .mini strong{ color: rgba(230,237,247,.92); font-weight: 600; }
+
+    /* FOOTER */
+    .footer{
+      padding: 28px 0;
+      border-top: 1px solid var(--line);
+      color: rgba(148,163,184,.9);
+      font-size: 12px;
+      text-align:center;
+      margin-top: 30px;
+      background: rgba(11,18,32,.35);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 920px){
+      .hero-grid{ grid-template-columns: 1fr; }
+      .contact-wrap{ grid-template-columns: 1fr; }
+      .box{ grid-column: span 6; }
+      h1{ font-size: 40px; }
+    }
+    @media (max-width: 640px){
+      .nav-links{ display:none; }
+      .menu-btn{ display:inline-flex; }
+      .box{ grid-column: span 12; }
+      .hero{ padding-top: 58px; }
+      h1{ font-size: 34px; }
+      .form-row{ grid-template-columns: 1fr; }
+      .brand{ min-width: auto; }
+    }
+
+    /* Simple mobile menu (no JS framework) */
+    .mobile-menu{
+      display:none;
+      border-top: 1px solid var(--line);
+      padding: 12px 0 16px;
+    }
+    .mobile-menu a{
+      display:block;
+      padding: 10px 10px;
+      border-radius: 10px;
+      color: rgba(230,237,247,.92);
+      border: 1px solid transparent;
+    }
+    .mobile-menu a:hover{
+      background: rgba(255,255,255,.04);
+      border-color: rgba(148,163,184,.18);
+    }
+
+    /* small helper for anchor focus */
+    .sr-only{
+      position:absolute; width:1px; height:1px;
+      padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0;
+    }
+  </style>
 </head>
 <body>
 
-<div class="grid-container">
-    <div class="box">Aldvar</div>
-    <div class="box">Government Contracting</div>
-    <div class="box">Staffing</div>
-    <div class="box">Consulting</div>
-    <div class="box">Analytics</div>
-    <div class="box">Contact</div>
-</div>
+  <!-- NAV -->
+  <header class="nav">
+    <div class="container">
+      <div class="nav-inner">
+        <a class="brand" href="#top" aria-label="Aldvar home">
+          <div class="logo" title="Logo placeholder">A</div>
+          <div class="name">
+            <strong>ALDVAR</strong>
+            <span>Federal Solutions • Analytics</span>
+          </div>
+        </a>
 
+        <nav class="nav-links" aria-label="Primary">
+          <a href="#services">Capabilities</a>
+          <a href="#about">Why Aldvar</a>
+          <a href="#contact">Contact</a>
+        </nav>
+
+        <div class="nav-cta">
+          <button class="btn menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="mobileMenu">
+            Menu
+          </button>
+          <a class="btn primary" href="#contact">Request a Call</a>
+        </div>
+      </div>
+
+      <div class="mobile-menu" id="mobileMenu" aria-label="Mobile">
+        <a href="#services">Capabilities</a>
+        <a href="#about">Why Aldvar</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-grid">
+          <div class="hero-card">
+            <div class="badge"><span class="dot"></span> Modern analytics + federal execution</div>
+            <h1>Precision delivery for mission-critical programs.</h1>
+            <p class="sub">
+              Aldvar helps government and regulated clients modernize data, strengthen operations,
+              and deliver measurable outcomes—through disciplined program delivery and modern analytics.
+            </p>
+
+            <div class="hero-actions">
+              <a class="btn primary" href="#contact">Talk to Us</a>
+              <a class="btn" href="#services">View Capabilities</a>
+            </div>
+
+            <div class="trust">
+              <div class="pill">Security-minded delivery</div>
+              <div class="pill">Transparent execution</div>
+              <div class="pill">Analytics that moves the needle</div>
+            </div>
+          </div>
+
+          <aside class="hero-side" aria-label="Highlights">
+            <div class="kpi">
+              <strong>Federal-ready</strong>
+              <span>Professional, compliant, and structured delivery</span>
+            </div>
+            <div class="kpi">
+              <strong>Analytics-led</strong>
+              <span>Dashboards, pipelines, quality checks, and insights</span>
+            </div>
+            <div class="kpi">
+              <strong>Built for scale</strong>
+              <span>Repeatable playbooks • clean documentation • clarity</span>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section id="services" class="section">
+      <div class="container">
+        <h2>Capabilities</h2>
+        <p class="lead">
+          A contractor-grade foundation with modern analytics execution—built for clarity, speed, and accountability.
+        </p>
+
+        <div class="grid-container">
+          <div class="box">
+            <h3>Government Contracting</h3>
+            <p>Responsive support, structured delivery, and documentation you can audit.</p>
+            <div class="tag"><b></b> Acquisition-aligned execution</div>
+          </div>
+
+          <div class="box">
+            <h3>Data & Analytics</h3>
+            <p>Pipelines, BI, KPI frameworks, and metrics that leadership can trust.</p>
+            <div class="tag"><b></b> Insight → action</div>
+          </div>
+
+          <div class="box">
+            <h3>Consulting Services</h3>
+            <p>Operating models, governance, process improvement, and delivery playbooks.</p>
+            <div class="tag"><b></b> Practical outcomes</div>
+          </div>
+
+          <div class="box">
+            <h3>Staffing Solutions</h3>
+            <p>High-signal teams: analysts, engineers, PMs, and operations support.</p>
+            <div class="tag"><b></b> Fast, vetted, dependable</div>
+          </div>
+
+          <div class="box">
+            <h3>Program Support</h3>
+            <p>Roadmaps, milestones, reporting, and stakeholder communication.</p>
+            <div class="tag"><b></b> Delivery discipline</div>
+          </div>
+
+          <div class="box">
+            <h3>Quality & Controls</h3>
+            <p>Validation, balance checks, monitoring, and data quality guardrails.</p>
+            <div class="tag"><b></b> Trustworthy data</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="section">
+      <div class="container">
+        <h2>Why Aldvar</h2>
+        <p class="lead">
+          We combine federal-style execution (clear scope, clean documentation, and accountability)
+          with modern analytics delivery—so stakeholders get clarity and results, not noise.
+        </p>
+
+        <div class="contact-wrap" style="margin-top: 8px;">
+          <div class="panel">
+            <h3 style="margin:0 0 8px; font-size:16px;">What you can expect</h3>
+            <div class="mini">
+              <div><strong>Structured kickoff:</strong> scope, timeline, deliverables, owners.</div>
+              <div><strong>Weekly cadence:</strong> progress, risks, decisions, next steps.</div>
+              <div><strong>Clean artifacts:</strong> SOPs, diagrams, runbooks, and handoffs.</div>
+              <div><strong>Analytics rigor:</strong> data quality, validation, and repeatability.</div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h3 style="margin:0 0 8px; font-size:16px;">Core focus areas</h3>
+            <div class="mini">
+              <div><strong>Delivery:</strong> program support, reporting, execution.</div>
+              <div><strong>Analytics:</strong> BI dashboards, pipelines, insights.</div>
+              <div><strong>Operations:</strong> process improvement, controls.</div>
+              <div><strong>People:</strong> staffing and embedded support.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="section">
+      <div class="container">
+        <h2>Contact</h2>
+        <p class="lead">
+          Share a quick note and we’ll respond. This form is ready for production once you connect it to a form handler
+          (instructions below).
+        </p>
+
+        <div class="contact-wrap">
+          <div class="panel">
+            <h3 style="margin:0 0 10px; font-size:16px;">Send a message</h3>
+
+            <!--
+              FORM NOTE:
+              GitHub Pages is static; this form needs a form handler.
+              Easiest: Formspree (works great with GitHub Pages).
+              After you create your Formspree form, replace the action URL below.
+            -->
+            <form id="contactForm" method="POST" action="https://formspree.io/f/REPLACE_WITH_YOUR_ID">
+              <div class="form-row">
+                <div>
+                  <label for="name">Full name</label>
+                  <input id="name" name="name" type="text" autocomplete="name" required placeholder="Your name" />
+                </div>
+                <div>
+                  <label for="email">Email</label>
+                  <input id="email" name="email" type="email" autocomplete="email" required placeholder="you@company.com" />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div>
+                  <label for="org">Organization</label>
+                  <input id="org" name="organization" type="text" placeholder="Agency / company" />
+                </div>
+                <div>
+                  <label for="topic">Topic</label>
+                  <select id="topic" name="topic" required>
+                    <option value="" disabled selected>Select one</option>
+                    <option>Government Contracting</option>
+                    <option>Data & Analytics</option>
+                    <option>Consulting</option>
+                    <option>Staffing</option>
+                    <option>Program Support</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label for="message">Message</label>
+                <textarea id="message" name="message" required placeholder="Tell us what you need, timeframe, and any constraints."></textarea>
+              </div>
+
+              <input type="hidden" name="_subject" value="New message from Aldvar.com" />
+
+              <button class="btn primary" type="submit">Send message</button>
+              <div class="note" id="formNote">
+                Tip: Replace the form action URL with your Formspree endpoint so submissions go to your email.
+              </div>
+            </form>
+          </div>
+
+          <div class="panel">
+            <h3 style="margin:0 0 10px; font-size:16px;">Direct contact</h3>
+            <div class="mini">
+              <div><strong>Email:</strong> info@aldvar.com</div>
+              <div><strong>Services:</strong> Federal support • analytics • staffing • consulting</div>
+              <div><strong>Response:</strong> Typically within 1 business day</div>
+            </div>
+
+            <div class="note" style="margin-top:14px;">
+              <strong>Make the form “real” on GitHub Pages:</strong><br />
+              Use Formspree (recommended) or Netlify Forms. With Formspree:
+              <ol style="margin:10px 0 0 18px; padding:0; color: rgba(148,163,184,.95); font-size:12px;">
+                <li>Create a free Formspree account and new form.</li>
+                <li>Copy the endpoint they give you.</li>
+                <li>Replace <code style="color: rgba(230,237,247,.92);">REPLACE_WITH_YOUR_ID</code> in the form action.</li>
+                <li>Commit changes — done.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      © 2026 Aldvar LLC. All rights reserved.
+    </footer>
+  </main>
+
+  <script>
+    // Mobile menu toggle (keeps it simple and professional)
+    const menuBtn = document.getElementById('menuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+
+    if (menuBtn && mobileMenu) {
+      menuBtn.addEventListener('click', () => {
+        const open = mobileMenu.style.display === 'block';
+        mobileMenu.style.display = open ? 'none' : 'block';
+        menuBtn.setAttribute('aria-expanded', String(!open));
+      });
+
+      // Close menu when a link is clicked
+      mobileMenu.querySelectorAll('a').forEach(a => {
+        a.addEventListener('click', () => {
+          mobileMenu.style.display = 'none';
+          menuBtn.setAttribute('aria-expanded', 'false');
+        });
+      });
+    }
+
+    // Lightweight client-side confirmation (works even before adding a form handler)
+    const form = document.getElementById('contactForm');
+    const note = document.getElementById('formNote');
+    if (form && note) {
+      form.addEventListener('submit', () => {
+        note.textContent = "Sending... (If you haven't connected Formspree yet, it won't deliver.)";
+      });
+    }
+  </script>
 </body>
 </html>
